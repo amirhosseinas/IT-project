@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoint xmlns="http://ws.apache.org/ns/synapse" name="${endpoint.name}" type="${endpoint.type}">
+    <parameter name="uri">${endpoint.uri}</parameter>
+    <parameter name="timeout">${endpoint.timeout}</parameter>
+    
+    <!-- Optional parameters based on endpoint type -->
+    <parameter name="method">${endpoint.method}</parameter>
+    <parameter name="username">${endpoint.username}</parameter>
+    <parameter name="password">${endpoint.password}</parameter>
+    
+    <!-- Retry configuration -->
+    <parameter name="retry.count">${endpoint.retry.count}</parameter>
+    <parameter name="retry.delay">${endpoint.retry.delay}</parameter>
+    
+    <!-- Timeout configuration -->
+    <parameter name="connection.timeout">${endpoint.connection.timeout}</parameter>
+    <parameter name="socket.timeout">${endpoint.socket.timeout}</parameter>
+</endpoint> 

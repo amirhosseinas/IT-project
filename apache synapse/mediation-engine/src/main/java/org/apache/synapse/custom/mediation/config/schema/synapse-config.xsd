@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:syn="http://ws.apache.org/ns/synapse"
+           targetNamespace="http://ws.apache.org/ns/synapse"
+           elementFormDefault="qualified">
+
+    <!-- Root element -->
+    <xs:element name="synapse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="registry" type="syn:RegistryType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="server" type="syn:ServerType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="transports" type="syn:TransportsType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="sequences" type="syn:SequencesType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="endpoints" type="syn:EndpointsType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="proxies" type="syn:ProxiesType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="tasks" type="syn:TasksType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="qos" type="syn:QosType" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" use="optional"/>
+            <xs:attribute name="version" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Registry Configuration -->
+    <xs:complexType name="RegistryType">
+        <xs:sequence>
+            <xs:element name="provider" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="class" type="xs:string" use="required"/>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Server Configuration -->
+    <xs:complexType name="ServerType">
+        <xs:sequence>
+            <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <!-- Transports Configuration -->
+    <xs:complexType name="TransportsType">
+        <xs:sequence>
+            <xs:element name="transport" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="class" type="xs:string" use="required"/>
+                    <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Sequences Configuration -->
+    <xs:complexType name="SequencesType">
+        <xs:sequence>
+            <xs:element name="sequence" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="log" type="syn:LogMediatorType"/>
+                        <xs:element name="property" type="syn:PropertyMediatorType"/>
+                        <xs:element name="filter" type="syn:FilterMediatorType"/>
+                        <xs:element name="switch" type="syn:SwitchMediatorType"/>
+                        <xs:element name="send" type="syn:SendMediatorType"/>
+                        <xs:element name="call" type="syn:CallMediatorType"/>
+                        <xs:element name="transform" type="syn:TransformMediatorType"/>
+                        <xs:element name="sequence" type="syn:SequenceRefType"/>
+                    </xs:choice>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="onError" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Endpoints Configuration -->
+    <xs:complexType name="EndpointsType">
+        <xs:sequence>
+            <xs:element name="endpoint" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="type" type="xs:string" use="required"/>
+                    <xs:attribute name="uri" type="xs:anyURI" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Proxy Services Configuration -->
+    <xs:complexType name="ProxiesType">
+        <xs:sequence>
+            <xs:element name="proxy" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="target" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:choice>
+                                    <xs:element name="endpoint" type="syn:EndpointRefType"/>
+                                    <xs:element name="sequence" type="syn:SequenceRefType"/>
+                                </xs:choice>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="transports" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Tasks Configuration -->
+    <xs:complexType name="TasksType">
+        <xs:sequence>
+            <xs:element name="task" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="schedule" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:attribute name="interval" type="xs:int" use="optional"/>
+                                <xs:attribute name="cron" type="xs:string" use="optional"/>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="parameter" type="syn:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="class" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- QoS Configuration -->
+    <xs:complexType name="QosType">
+        <xs:sequence>
+            <xs:element name="throttling" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="policy" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="id" type="xs:string" use="required"/>
+                                <xs:attribute name="maxConcurrentRequests" type="xs:int" use="optional"/>
+                                <xs:attribute name="maxRequestsPerSecond" type="xs:int" use="optional"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cache" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="enabled" type="xs:boolean" use="optional" default="false"/>
+                    <xs:attribute name="maxSize" type="xs:int" use="optional" default="1000"/>
+                    <xs:attribute name="timeout" type="xs:int" use="optional" default="300"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Common Types -->
+    <xs:complexType name="ParameterType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="EndpointRefType">
+        <xs:attribute name="key" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="SequenceRefType">
+        <xs:attribute name="key" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- Mediator Types -->
+    <xs:complexType name="LogMediatorType">
+        <xs:sequence>
+            <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="value" type="xs:string" use="optional"/>
+                    <xs:attribute name="expression" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="level" use="optional" default="full">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="full"/>
+                    <xs:enumeration value="simple"/>
+                    <xs:enumeration value="headers"/>
+                    <xs:enumeration value="custom"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="category" use="optional" default="INFO">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="TRACE"/>
+                    <xs:enumeration value="DEBUG"/>
+                    <xs:enumeration value="INFO"/>
+                    <xs:enumeration value="WARN"/>
+                    <xs:enumeration value="ERROR"/>
+                    <xs:enumeration value="FATAL"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="PropertyMediatorType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="optional"/>
+        <xs:attribute name="expression" type="xs:string" use="optional"/>
+        <xs:attribute name="scope" use="optional" default="default">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="default"/>
+                    <xs:enumeration value="transport"/>
+                    <xs:enumeration value="axis2"/>
+                    <xs:enumeration value="operation"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="FilterMediatorType">
+        <xs:sequence>
+            <xs:element name="condition" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="source" type="xs:string" use="optional"/>
+                    <xs:attribute name="regex" type="xs:string" use="optional"/>
+                    <xs:attribute name="xpath" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="then" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="log" type="syn:LogMediatorType"/>
+                        <xs:element name="property" type="syn:PropertyMediatorType"/>
+                        <xs:element name="filter" type="syn:FilterMediatorType"/>
+                        <xs:element name="switch" type="syn:SwitchMediatorType"/>
+                        <xs:element name="send" type="syn:SendMediatorType"/>
+                        <xs:element name="call" type="syn:CallMediatorType"/>
+                        <xs:element name="transform" type="syn:TransformMediatorType"/>
+                        <xs:element name="sequence" type="syn:SequenceRefType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="else" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="log" type="syn:LogMediatorType"/>
+                        <xs:element name="property" type="syn:PropertyMediatorType"/>
+                        <xs:element name="filter" type="syn:FilterMediatorType"/>
+                        <xs:element name="switch" type="syn:SwitchMediatorType"/>
+                        <xs:element name="send" type="syn:SendMediatorType"/>
+                        <xs:element name="call" type="syn:CallMediatorType"/>
+                        <xs:element name="transform" type="syn:TransformMediatorType"/>
+                        <xs:element name="sequence" type="syn:SequenceRefType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SwitchMediatorType">
+        <xs:sequence>
+            <xs:element name="source" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="xpath" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="case" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="log" type="syn:LogMediatorType"/>
+                        <xs:element name="property" type="syn:PropertyMediatorType"/>
+                        <xs:element name="filter" type="syn:FilterMediatorType"/>
+                        <xs:element name="switch" type="syn:SwitchMediatorType"/>
+                        <xs:element name="send" type="syn:SendMediatorType"/>
+                        <xs:element name="call" type="syn:CallMediatorType"/>
+                        <xs:element name="transform" type="syn:TransformMediatorType"/>
+                        <xs:element name="sequence" type="syn:SequenceRefType"/>
+                    </xs:choice>
+                    <xs:attribute name="regex" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="default" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="log" type="syn:LogMediatorType"/>
+                        <xs:element name="property" type="syn:PropertyMediatorType"/>
+                        <xs:element name="filter" type="syn:FilterMediatorType"/>
+                        <xs:element name="switch" type="syn:SwitchMediatorType"/>
+                        <xs:element name="send" type="syn:SendMediatorType"/>
+                        <xs:element name="call" type="syn:CallMediatorType"/>
+                        <xs:element name="transform" type="syn:TransformMediatorType"/>
+                        <xs:element name="sequence" type="syn:SequenceRefType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SendMediatorType">
+        <xs:sequence>
+            <xs:element name="endpoint" type="syn:EndpointRefType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CallMediatorType">
+        <xs:sequence>
+            <xs:element name="endpoint" type="syn:EndpointRefType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="blocking" type="xs:boolean" use="optional" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="TransformMediatorType">
+        <xs:attribute name="xslt" type="xs:string" use="optional"/>
+        <xs:attribute name="source" type="xs:string" use="optional"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+    </xs:complexType>
+</xs:schema> 
