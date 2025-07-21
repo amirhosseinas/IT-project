@@ -1,0 +1,35 @@
+{
+  "name": "wikipedia-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Wikipedia integration",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node src/index.js",
+    "dev": "NODE_ENV=development nodemon --watch src src/index.js",
+    "test": "NODE_ENV=test jest",
+    "test:integration": "NODE_ENV=test node test.js",
+    "lint": "eslint src/**/*.js",
+    "build": "mkdir -p dist && cp -r src package.json .env-files dist/",
+    "prepare-env:dev": "cp .env-files/development.env .env",
+    "prepare-env:prod": "cp .env-files/production.env .env",
+    "prepare-env:test": "cp .env-files/test.env .env"
+  },
+  "keywords": [
+    "mcp",
+    "wikipedia",
+    "ai",
+    "agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "*",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "wikipedia-js": "^0.0.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+} 

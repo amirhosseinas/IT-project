@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<synapse xmlns="http://ws.apache.org/ns/synapse" name="SampleSynapse" version="1.0">
+    
+    <!-- Registry Configuration -->
+    <registry>
+        <provider class="org.apache.synapse.custom.mediation.registry.MemoryRegistry" name="memory">
+            <parameter name="enablePersistence">false</parameter>
+        </provider>
+    </registry>
+    
+    <!-- Server Configuration -->
+    <server name="SampleServer">
+        <parameter name="serverPort">8280</parameter>
+        <parameter name="serverSecurePort">8443</parameter>
+        <parameter name="hostname">localhost</parameter>
+    </server>
+    
+    <!-- Transport Configuration -->
+    <transports>
+        <transport name="http" class="org.apache.synapse.custom.transports.http.HttpTransportFactory">
+            <parameter name="port">8280</parameter>
+            <parameter name="hostname">localhost</parameter>
+        </transport>
+        <transport name="https" class="org.apache.synapse.custom.transports.http.HttpTransportFactory">
+            <parameter name="port">8443</parameter>
+            <parameter name="hostname">localhost</parameter>
+            <parameter name="keyStore">${synapse.home}/repository/resources/security/wso2carbon.jks</parameter>
+            <parameter name="keyStorePassword">wso2carbon</parameter>
+            <parameter name="trustStore">${synapse.home}/repository/resources/security/client-truststore.jks</parameter>
+            <parameter name="trustStorePassword">wso2carbon</parameter>
+        </transport>
+        <transport name="jms" class="org.apache.synapse.custom.transports.jms.JmsTransportFactory" enabled="false">
+            <parameter name="initialContextFactory">org.apache.activemq.jndi.ActiveMQInitialContextFactory</parameter>
+            <parameter name="providerUrl">tcp://localhost:61616</parameter>
+            <parameter name="connectionFactoryName">QueueConnectionFactory</parameter>
+        </transport>
+    </transports>
+    
+    <!-- Sequences Configuration -->
+    <sequences>
+        <sequence name="main">
+            <log level="full"/>
+            <filter>
+                <condition source="get-property('To')" regex=".*/echo.*"/>
+                <then>
+                    <send>
+                        <endpoint key="echo"/>
+                    </send>
+                </then>
+                <else>
+                    <log level="custom" category="INFO">
+                        <property name="message" value="Message not directed to echo service"/>
+                    </log>
+                    <drop/>
+                </else>
+            </filter>
+        </sequence>
+        
+        <sequence name="fault">
+            <log level="full">
+                <property name="message" value="An error occurred"/>
+                <property name="error_code" expression="get-property('ERROR_CODE')"/>
+                <property name="error_message" expression="get-property('ERROR_MESSAGE')"/>
+            </log>
+            <property name="RESPONSE" value="true"/>
+            <property name="HTTP_SC" value="500"/>
+        </sequence>
+    </sequences>
+    
+    <!-- Endpoints Configuration -->
+    <endpoints>
+        <endpoint name="echo" type="http">
+            <parameter name="uri">http://localhost:9000/services/echo</parameter>
+            <parameter name="timeout">30000</parameter>
+        </endpoint>
+    </endpoints>
+    
+    <!-- Proxy Services Configuration -->
+    <proxies>
+        <proxy name="EchoProxy">
+            <target>
+                <endpoint key="echo"/>
+            </target>
+            <parameter name="transport">http,https</parameter>
+        </proxy>
+    </proxies>
+    
+    <!-- Tasks Configuration -->
+    <tasks>
+        <task name="CleanupTask" class="org.apache.synapse.custom.mediation.task.CleanupTask">
+            <schedule interval="3600"/>
+            <parameter name="maxAge">86400</parameter>
+        </task>
+    </tasks>
+    
+    <!-- QoS Configuration -->
+    <qos>
+        <throttling>
+            <policy id="default" maxConcurrentRequests="100" maxRequestsPerSecond="50"/>
+        </throttling>
+        <cache enabled="true" maxSize="1000" timeout="300"/>
+    </qos>
+    
+</synapse> 
